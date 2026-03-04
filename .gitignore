@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+#lab1
+*.txt
+lab1/src/generator.py
+.gitignore
+lab1/src/checker.py
