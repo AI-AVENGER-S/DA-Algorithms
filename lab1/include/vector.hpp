@@ -1,10 +1,7 @@
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#pragma once
 
 #include <iostream>
 #include <utility>
-
-using namespace std;
 
 
 template <typename T>
@@ -18,7 +15,7 @@ private:
         if (new_cap <= cap) return;
         T* new_data = new T[new_cap];
         for (size_t i = 0; i < sz; ++i) {
-            new_data[i] = move(data[i]);
+            new_data[i] = std::move(data[i]);
         }
         delete[] data;
         data = new_data;
@@ -34,7 +31,6 @@ public:
         delete[] data;
     }
 
-    // Конструктор копирования
     Vector(const Vector& other) : data(nullptr), sz(0), cap(0) {
         reserve(other.cap);
         for (size_t i = 0; i < other.sz; ++i) {
@@ -43,11 +39,10 @@ public:
         sz = other.sz;
     }
 
-    // Оператор присваивания (Copy-and-Swap idiom)
     Vector& operator=(Vector other) {
-        swap(data, other.data);
-        swap(sz, other.sz);
-        swap(cap, other.cap);
+        std::swap(data, other.data);
+        std::swap(sz, other.sz);
+        std::swap(cap, other.cap);
         return *this;
     }
 
@@ -55,12 +50,15 @@ public:
         if (sz == cap) {
             reserve(cap == 0 ? 8 : cap * 2);
         }
-        data[sz++] = move(value);
+        data[sz++] = std::move(value);
     }
 
     T& operator[](size_t i) { return data[i]; }
     const T& operator[](size_t i) const { return data[i]; }
     size_t size() const { return sz; }
-};
 
-#endif
+    T* begin() { return data; }
+    T* end() { return data + sz; }
+    const T* begin() const { return data; }
+    const T* end() const { return data + sz; }
+};

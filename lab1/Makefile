@@ -1,20 +1,18 @@
 CXX = g++
-CXXFLAGS = -std=c++14 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude
+CXXFLAGS = -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude
 
 PYTHON = python3
 TARGET = lab1
 
+BENCH_SRC = src/benchmark.cpp src/sort.cpp
+BENCH_OBJ = src/benchmark.o src/sort.o
+
 SRC = main.cpp src/sort.cpp
-OBJ = $(SRC:.cpp=.o)
+OBJ = main.o src/sort.o
 
 INPUT = input.txt
 OUTPUT_FILE = output.txt
-
-# Параметры генерации (можно менять при вызове make)
-NUM_RECORDS = 10000
-MAX_VAL_LEN = 100
-MIN_VAL_LEN = 1
-SEED =
+NUM_RECORDS = 1000
 
 all: $(TARGET)
 
@@ -25,19 +23,19 @@ $(TARGET): $(OBJ)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 generate:
-	$(PYTHON) src/generator.py -n $(NUM_RECORDS) -m $(MAX_VAL_LEN) -M $(MIN_VAL_LEN) $(if $(SEED),-s $(SEED),) -o $(INPUT)
-
-run: $(TARGET)
-	./$(TARGET)
-
-test: $(TARGET) generate
-	./$(TARGET) < $(INPUT)
+	$(PYTHON) src/generator.py $(NUM_RECORDS) $(INPUT)
 
 test-save: $(TARGET) generate
 	./$(TARGET) < $(INPUT) > $(OUTPUT_FILE)
 
 check: test-save
-	$(PYTHON) src/checker.py $(OUTPUT_FILE) -m $(MAX_VAL_LEN) -v
+	$(PYTHON) src/checker.py $(OUTPUT_FILE)
+
+benchmark: $(BENCH_OBJ)
+	$(CXX) $(CXXFLAGS) $(BENCH_OBJ) -o benchmark_run
+
+run-bench: benchmark generate
+	./benchmark_run < $(INPUT)
 
 clean:
 	rm -f $(OBJ) $(TARGET) $(OUTPUT_FILE) $(INPUT)
