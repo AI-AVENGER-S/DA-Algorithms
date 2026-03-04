@@ -25,7 +25,7 @@ private:
 public:
     Vector() : data(nullptr), sz(0), cap(0) {}
     
-    explicit Vector(size_t n) : data(new T[n]), sz(n), cap(n) {}
+    Vector(size_t n) : data(new T[n]), sz(n), cap(n) {}
 
     ~Vector() {
         delete[] data;

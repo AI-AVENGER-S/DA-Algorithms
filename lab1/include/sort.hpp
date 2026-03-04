@@ -1,5 +1,4 @@
-#ifndef SORT_HPP
-#define SORT_HPP
+#pragma once
 
 #include "vector.hpp"
 #include <string>
@@ -13,5 +12,3 @@ struct Item {
 };
 
 void radixSort(Vector<Item>& a);
-
-#endif

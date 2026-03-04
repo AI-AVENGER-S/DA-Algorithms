@@ -1,6 +1,6 @@
 #include "../include/sort.hpp"
 
-inline unsigned char getByte(unsigned long long key, int byteNum) {
+unsigned char getByte(unsigned long long key, int byteNum) {
     return (key >> (byteNum * 8)) & 0xFF;
 }
 
