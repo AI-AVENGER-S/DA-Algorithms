@@ -1,0 +1,20 @@
+\section{Тест производительности}
+Тест производительности сравнивает время работы реализованного алгоритма поразрядной сортировки (Radix Sort) с библиотечной функцией стабильной сортировки \texttt{std::stable\_sort} из STL C++.
+
+Данные для теста (100 000 строк) были сгенерированы отдельным Python-скриптом. Время измерялось в микросекундах (\texttt{us}) с использованием библиотеки \texttt{<chrono>}.
+
+\begin{lstlisting}[language=bash]
+artems@MacBook-Air-artem-2 lab1 % make run-bench
+g++ -std=c++14 -O3 -pedantic -Wall -Wextra src/benchmark.cpp src/sort.cpp -o benchmark_run
+python3 src/generator.py 100000 input.txt
+./benchmark_run < input.txt
+Count of lines: 100000
+-----------------------------------
+Radix Sort (LSD):  3506 us
+STL Stable Sort:   7268 us
+-----------------------------------
+Speedup: Radix is 2.07302x faster!
+\end{lstlisting}
+
+Как видно из результатов бенчмарка, реализованная поразрядная сортировка отрабатывает примерно в ~2 раза быстрее стандартной сортировки C++ на объеме данных в 100 000 элементов. Это подтверждает линейную асимптотику $O(n)$ алгоритма Radix Sort по сравнению с $O(n \log n)$ у \texttt{std::stable\_sort}.
+\pagebreak

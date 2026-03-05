@@ -1,3 +1,16 @@
+\section{Описание}
+Требуется написать реализацию алгоритма поразрядной сортировки (Radix Sort) по младшим разрядам (LSD). 
+
+Основная идея Radix Sort заключается в последовательной сортировке элементов по разрядам, начиная с младшего и заканчивая старшим. Для стабильной сортировки каждого разряда используется алгоритм сортировки подсчетом (Counting Sort) \cite{Kormen}.
+
+Поскольку ключом является 64-битное число (\texttt{unsigned long long}), мы рассматриваем его как последовательность из 8 байт (разрядов в системе счисления с основанием 256). Таким образом, алгоритм гарантированно выполняет ровно 8 проходов, что обеспечивает линейное время работы $O(k \cdot n)$, где $k=8$.
+
+\pagebreak
+
+\section{Исходный код}
+Для работы с динамическим массивом был реализован собственный шаблонный класс \texttt{Vector}, поддерживающий семантику перемещения (\texttt{std::move}), чтобы избежать накладных расходов на копирование длинных строк.
+
+\begin{lstlisting}[language=C++]
 #include <iostream>
 #include <utility>
 #include <string>
@@ -54,6 +67,11 @@ public:
     T& operator[](size_t i) { return data[i]; }
     const T& operator[](size_t i) const { return data[i]; }
     size_t size() const { return sz; }
+
+    T* begin() { return data; }
+    T* end() { return data + sz; }
+    const T* begin() const { return data; }
+    const T* end() const { return data + sz; }
 };
 
 
@@ -123,3 +141,5 @@ int main() {
 
     return 0;
 }
+\end{lstlisting}
+\pagebreak
