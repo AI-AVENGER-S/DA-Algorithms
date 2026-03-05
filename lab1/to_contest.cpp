@@ -9,7 +9,7 @@ private:
     size_t sz;
     size_t cap;
 
-    void reserve(size_t new_cap) {
+    void Reserve(size_t new_cap) {
         if (new_cap <= cap) return;
         T* new_data = new T[new_cap];
         for (size_t i = 0; i < sz; ++i) {
@@ -30,7 +30,7 @@ public:
     }
 
     Vector(const Vector& other) : data(nullptr), sz(0), cap(0) {
-        reserve(other.cap);
+        Reserve(other.cap);
         for (size_t i = 0; i < other.sz; ++i) {
             data[i] = other.data[i];
         }
@@ -44,9 +44,9 @@ public:
         return *this;
     }
 
-    void push_back(T value) {
+    void Push_Back(T value) {
         if (sz == cap) {
-            reserve(cap == 0 ? 8 : cap * 2);
+            Reserve(cap == 0 ? 8 : cap * 2);
         }
         data[sz++] = std::move(value);
     }
@@ -72,11 +72,11 @@ struct Item {
 
 
 
-unsigned char getByte(unsigned long long key, int byteNum) {
+unsigned char GetByte(unsigned long long key, int byteNum) {
     return (key >> (byteNum * 8)) & 0xFF;
 }
 
-void radixSort(Vector<Item>& a) {
+void RadixSort(Vector<Item>& a) {
     size_t n = a.size();
     if (n <= 1) return;
 
@@ -86,7 +86,7 @@ void radixSort(Vector<Item>& a) {
         size_t count[256] = {0};
 
         for (size_t i = 0; i < n; ++i) {
-            count[getByte(a[i].key, byteNum)]++;
+            count[GetByte(a[i].key, byteNum)]++;
         }
 
         for (int i = 1; i < 256; ++i) {
@@ -94,7 +94,7 @@ void radixSort(Vector<Item>& a) {
         }
 
         for (size_t i = n; i > 0; --i) {
-            unsigned char byte = getByte(a[i - 1].key, byteNum);
+            unsigned char byte = GetByte(a[i - 1].key, byteNum);
             b[--count[byte]] = std::move(a[i - 1]);
         }
 
@@ -116,11 +116,11 @@ int main() {
     while (std::cin >> key) {
         if (std::cin.get() == '\t') {
             std::getline(std::cin, val);
-            items.push_back(Item(key, std::move(val)));
+            items.Push_Back(Item(key, std::move(val)));
         }
     }
 
-    radixSort(items);
+    RadixSort(items);
 
     for (size_t i = 0; i < items.size(); ++i) {
         std::cout << items[i].key << "\t" << items[i].value << "\n";

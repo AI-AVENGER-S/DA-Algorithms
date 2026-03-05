@@ -11,4 +11,4 @@ struct Item {
     Item(unsigned long long k, std::string v) : key(k), value(std::move(v)) {}
 };
 
-void radixSort(Vector<Item>& a);
+void RadixSort(Vector<Item>& a);

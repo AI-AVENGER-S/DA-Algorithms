@@ -1,10 +1,10 @@
 #include "../include/sort.hpp"
 
-unsigned char getByte(unsigned long long key, int byteNum) {
+unsigned char GetByte(unsigned long long key, int byteNum) {
     return (key >> (byteNum * 8)) & 0xFF;
 }
 
-void radixSort(Vector<Item>& a) {
+void RadixSort(Vector<Item>& a) {
     size_t n = a.size();
     if (n <= 1) return;
 
@@ -14,7 +14,7 @@ void radixSort(Vector<Item>& a) {
         size_t count[256] = {0};
 
         for (size_t i = 0; i < n; ++i) {
-            count[getByte(a[i].key, byteNum)]++;
+            count[GetByte(a[i].key, byteNum)]++;
         }
 
         for (int i = 1; i < 256; ++i) {
@@ -22,7 +22,7 @@ void radixSort(Vector<Item>& a) {
         }
 
         for (size_t i = n; i > 0; --i) {
-            unsigned char byte = getByte(a[i - 1].key, byteNum);
+            unsigned char byte = GetByte(a[i - 1].key, byteNum);
             b[--count[byte]] = std::move(a[i - 1]);
         }
 

@@ -11,7 +11,7 @@ private:
     size_t sz;
     size_t cap;
 
-    void reserve(size_t new_cap) {
+    void Reserve(size_t new_cap) {
         if (new_cap <= cap) return;
         T* new_data = new T[new_cap];
         for (size_t i = 0; i < sz; ++i) {
@@ -32,7 +32,7 @@ public:
     }
 
     Vector(const Vector& other) : data(nullptr), sz(0), cap(0) {
-        reserve(other.cap);
+        Reserve(other.cap);
         for (size_t i = 0; i < other.sz; ++i) {
             data[i] = other.data[i];
         }
@@ -46,9 +46,9 @@ public:
         return *this;
     }
 
-    void push_back(T value) {
+    void Push_Back(T value) {
         if (sz == cap) {
-            reserve(cap == 0 ? 8 : cap * 2);
+            Reserve(cap == 0 ? 8 : cap * 2);
         }
         data[sz++] = std::move(value);
     }

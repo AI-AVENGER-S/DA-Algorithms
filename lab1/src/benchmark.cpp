@@ -26,7 +26,7 @@ int main() {
             
             try {
                 unsigned long long key = std::stoull(key_str);
-                input.push_back(Item(key, std::move(value)));
+                input.Push_Back(Item(key, std::move(value)));
             } catch (...) {
                 continue;
             }
@@ -44,7 +44,7 @@ int main() {
     std::cout << "-----------------------------------\n";
 
     auto start_ts = std::chrono::high_resolution_clock::now();
-    radixSort(input);
+    RadixSort(input);
     auto end_ts = std::chrono::high_resolution_clock::now();
     
     uint64_t radix_sort_ts = std::chrono::duration_cast<duration_t>(end_ts - start_ts).count();

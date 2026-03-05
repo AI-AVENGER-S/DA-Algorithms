@@ -13,11 +13,11 @@ int main() {
     while (std::cin >> key) {
         if (std::cin.get() == '\t') {
             std::getline(std::cin, val);
-            items.push_back(Item(key, std::move(val)));
+            items.Push_Back(Item(key, std::move(val)));
         }
     }
 
-    radixSort(items);
+    RadixSort(items);
 
     for (size_t i = 0; i < items.size(); ++i) {
         std::cout << items[i].key << "\t" << items[i].value << "\n";
