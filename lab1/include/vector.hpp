@@ -46,7 +46,7 @@ public:
         return *this;
     }
 
-        Vector& operator=(Vector&& other) noexcept { 
+    Vector& operator=(Vector&& other) noexcept { 
         if (this != &other) { 
             delete[] data; 
             data = other.data; 

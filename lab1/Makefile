@@ -12,7 +12,7 @@ OBJ = main.o src/sort.o
 
 INPUT = input.txt
 OUTPUT_FILE = output.txt
-NUM_RECORDS = 10_000
+NUM_RECORDS = 100_000
 
 all: $(TARGET)
 
