@@ -14,7 +14,40 @@ Radix Sort (LSD):  3506 us
 STL Stable Sort:   7268 us
 -----------------------------------
 Speedup: Radix is 2.07302x faster!
+
+artems@air-artem-2 lab1 % make run-bench
+g++ -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude src/benchmark.o src/sort.o -o benchmark_run
+python3 src/generator.py 1_000_000 input.txt
+./benchmark_run < input.txt
+Count of lines: 1000000
+-----------------------------------
+Radix Sort (LSD):  77943 us
+STL Stable Sort:   129965 us
+-----------------------------------
+Speedup: Radix is 1.66744x faster!
+
+artems@air-artem-2 lab1 % make run-bench
+g++ -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude src/benchmark.o src/sort.o -o benchmark_run
+python3 src/generator.py 5000 input.txt
+./benchmark_run < input.txt
+Count of lines: 5000
+-----------------------------------
+Radix Sort (LSD):  276 us
+STL Stable Sort:   393 us
+-----------------------------------
+Speedup: Radix is 1.42391x faster!
+
+artems@air-artem-2 lab1 % make run-bench
+g++ -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude src/benchmark.o src/sort.o -o benchmark_run
+python3 src/generator.py 10_000 input.txt
+./benchmark_run < input.txt
+Count of lines: 10000
+-----------------------------------
+Radix Sort (LSD):  617 us
+STL Stable Sort:   932 us
+-----------------------------------
+Speedup: Radix is 1.51053x faster!
 \end{lstlisting}
 
-Как видно из результатов бенчмарка, реализованная поразрядная сортировка отрабатывает примерно в ~2 раза быстрее стандартной сортировки C++ на объеме данных в 100 000 элементов. Это подтверждает линейную асимптотику $O(n)$ алгоритма Radix Sort по сравнению с $O(n \log n)$ у \texttt{std::stable\_sort}.
+Как видно из результатов бенчмарка, реализованная поразрядная сортировка отрабатывает примерно в ~1.6 раза быстрее стандартной сортировки C++ на разных объемах данных. Это подтверждает эффективность линейной асимптотики $O(n)$ алгоритма Radix Sort по сравнению с $O(n \log n)$ у \texttt{std::stable\_sort}.
 \pagebreak
