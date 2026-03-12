@@ -16,7 +16,6 @@ STL Stable Sort:   7268 us
 Speedup: Radix is 2.07302x faster!
 
 artems@air-artem-2 lab1 % make run-bench
-g++ -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude src/benchmark.o src/sort.o -o benchmark_run
 python3 src/generator.py 1_000_000 input.txt
 ./benchmark_run < input.txt
 Count of lines: 1000000
@@ -27,7 +26,6 @@ STL Stable Sort:   129965 us
 Speedup: Radix is 1.66744x faster!
 
 artems@air-artem-2 lab1 % make run-bench
-g++ -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude src/benchmark.o src/sort.o -o benchmark_run
 python3 src/generator.py 5000 input.txt
 ./benchmark_run < input.txt
 Count of lines: 5000
@@ -38,7 +36,6 @@ STL Stable Sort:   393 us
 Speedup: Radix is 1.42391x faster!
 
 artems@air-artem-2 lab1 % make run-bench
-g++ -std=c++14 -O3 -pedantic -Wall -Wextra -Wno-unused-variable -Iinclude src/benchmark.o src/sort.o -o benchmark_run
 python3 src/generator.py 10_000 input.txt
 ./benchmark_run < input.txt
 Count of lines: 10000
