@@ -44,6 +44,18 @@ public:
         return *this;
     }
 
+    Vector& operator=(Vector&& other) noexcept { 
+        if (this != &other) { 
+            delete[] data; 
+            data = other.data; 
+            sz = other.sz; 
+            cap = other.cap; 
+            other.data = nullptr; 
+            other.sz = other.cap = 0; 
+        } 
+        return *this; 
+    }
+
     void Push_Back(T value) {
         if (sz == cap) {
             Reserve(cap == 0 ? 8 : cap * 2);
