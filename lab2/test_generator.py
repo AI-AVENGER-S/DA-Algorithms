@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import sys
 import random
 import string
@@ -19,7 +17,7 @@ if __name__ == "__main__":
     test_dir = sys.argv[1]
     count_of_tests = int(sys.argv[2])
 
-    actions = ["+", "-"]
+    actions = ["+", "-", "?"]
 
     for enum in range(count_of_tests):
         keys = dict()

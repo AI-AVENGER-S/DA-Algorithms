@@ -2,22 +2,40 @@ CXX = g++
 CXXFLAGS = -std=c++20 -pedantic -Wall -Wextra -Werror
 INCLUDES = -I./AVL
 
-all: lab2 lab2_test lab2_demo lab2_profiler
+TARGET = lab2
+TEST_TARGET = lab2_test
+DEMO_TARGET = lab2_demo
+PROFILER_TARGET = lab2_profiler
+BENCHMARK_TARGET = benchmark
 
-lab2: lab2.cpp AVL/avl.hpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) lab2.cpp -o lab2
+all: $(TARGET) $(TEST_TARGET) $(DEMO_TARGET) $(PROFILER_TARGET) $(BENCHMARK_TARGET)
 
-lab2_test: test.cpp AVL/avl.hpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) test.cpp -o lab2_test
+$(TARGET): lab2.cpp AVL/avl.hpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@
 
-lab2_demo: AVL/main.cpp AVL/avl.hpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) AVL/main.cpp -o lab2_demo
+$(TEST_TARGET): test.cpp AVL/avl.hpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@
 
-lab2_profiler: lab2.cpp AVL/avl.hpp
-	$(CXX) $(CXXFLAGS) -pg $(INCLUDES) lab2.cpp -o lab2_profiler
+$(DEMO_TARGET): AVL/main.cpp AVL/avl.hpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@
 
-test:
-	./lab2_test
+$(PROFILER_TARGET): lab2.cpp AVL/avl.hpp
+	$(CXX) $(CXXFLAGS) -pg $(INCLUDES) $< -o $@
+
+$(BENCHMARK_TARGET): benchmark.cpp AVL/avl.hpp
+	$(CXX) $(CXXFLAGS) -O2 $(INCLUDES) $< -o $@
+
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+benchmark_run: $(BENCHMARK_TARGET)
+ifndef TEST
+	$(error Please provide TEST path, e.g., make benchmark_run TEST=tests/01)
+endif
+	./$(BENCHMARK_TARGET) $(TEST)
 
 clean:
-	rm -f lab2 lab2_test lab2_demo lab2_profiler *.o
+	rm -f $(TARGET) $(TEST_TARGET) $(DEMO_TARGET) \
+	      $(PROFILER_TARGET) $(BENCHMARK_TARGET) *.o gmon.out
+
+.PHONY: all test clean benchmark_run

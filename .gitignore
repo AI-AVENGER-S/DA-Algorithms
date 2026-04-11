@@ -43,3 +43,6 @@
 #lab1
 *.txt
 .DS_Store
+
+#lab2
+/lab2/tests
