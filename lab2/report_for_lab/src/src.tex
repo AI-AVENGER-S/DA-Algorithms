@@ -1,0 +1,148 @@
+\section{Описание}
+Требуется реализовать программную библиотеку для словаря на основе **AVL-дерева** — самобалансирующегося бинарного дерева поиска. AVL-дерево гарантирует высоту $\log n$ и время выполнения операций вставки, удаления и поиска $O(\log n)$ за счёт автоматической балансировки после каждой операции (разница высот левого и правого поддеревьев не превышает 1).
+
+Для ключей (регистронезависимые строки английских букв длиной $\le 256$) сравнение и хранение выполняются в нижнем регистре. Значением является 64-битное беззнаковое целое число.
+
+Реализация содержит шаблонный класс \texttt{avl::AVL} с необходимыми поворотами (left, right, left-right, right-left) и вспомогательные функции для удаления.
+
+\begin{lstlisting}[language=C++]
+class AVL {
+   private:
+    struct Node {
+        Key key;
+        Value value;
+        int height = 1;
+        Node* left = nullptr;
+        Node* right = nullptr;
+
+        Node(const Key& k, const Value& v) : key(k), value(v) {}
+    };
+
+    Node* root_ = nullptr;
+    size_t size_ = 0;
+
+    int get_height(Node* node) const { return node ? node->height : 0; }
+
+    int balance_factor(Node* node) const {
+        return node ? get_height(node->right) - get_height(node->left) : 0;
+    }
+
+    void fix_height(Node* node) {
+        if (!node) return;
+        int hl = get_height(node->left);
+        int hr = get_height(node->right);
+        node->height = (hl > hr ? hl : hr) + 1;
+    }
+
+    Node* rotate_right(Node* p) {
+        Node* q = p->left;
+        p->left = q->right;
+        q->right = p;
+        fix_height(p);
+        fix_height(q);
+        return q;
+    }
+
+    Node* rotate_left(Node* q) {
+        Node* p = q->right;
+        q->right = p->left;
+        p->left = q;
+        fix_height(q);
+        fix_height(p);
+        return p;
+    }
+
+    Node* balance(Node* p) {
+        if (!p) return nullptr;
+        fix_height(p);
+
+        if (balance_factor(p) == 2) {
+            if (balance_factor(p->right) < 0) p->right = rotate_right(p->right);
+            return rotate_left(p);
+        }
+        if (balance_factor(p) == -2) {
+            if (balance_factor(p->left) > 0) p->left = rotate_left(p->left);
+            return rotate_right(p);
+        }
+        return p;
+    }
+
+    Node* insert(Node* node, const Key& key, const Value& value,
+                 bool& success) {
+        if (!node) {
+            success = true;
+            ++size_;
+            return new Node(key, value);
+        }
+
+        if (key < node->key)
+            node->left = insert(node->left, key, value, success);
+        else if (key > node->key)
+            node->right = insert(node->right, key, value, success);
+        else
+            success = false;
+
+        return balance(node);
+    }
+
+    Node* remove_min(Node* node, Node*& min_node) {
+        if (!node->left) {
+            min_node = node;
+            return node->right;
+        }
+        node->left = remove_min(node->left, min_node);
+        return balance(node);
+    }
+
+    Node* remove(Node* node, const Key& key, bool& success) {
+        if (!node) {
+            success = false;
+            return nullptr;
+        }
+
+        if (key < node->key)
+            node->left = remove(node->left, key, success);
+        else if (key > node->key)
+            node->right = remove(node->right, key, success);
+        else {
+            success = true;
+            --size_;
+
+            if (!node->left || !node->right) {
+                Node* temp = node->left ? node->left : node->right;
+                delete node;
+                return temp;
+
+            } else {
+                Node* min_node = nullptr;
+                node->right = remove_min(node->right, min_node);
+
+                min_node->left = node->left;
+                min_node->right = node->right;
+
+                delete node;
+                return balance(min_node);
+            }
+        }
+        return balance(node);
+    }
+
+    // ... etc.
+
+    void serialize(Node* node, std::ofstream& out) const {
+        if (!node) return;
+
+        uint16_t len = static_cast<uint16_t>(node->key.size());
+        out.write(reinterpret_cast<const char*>(&len), sizeof(len));
+        out.write(node->key.data(), len);
+        out.write(reinterpret_cast<const char*>(&node->value),
+                  sizeof(node->value));
+
+        serialize(node->left, out);
+        serialize(node->right, out);
+    }
+
+    // ... etc.
+}
+\end{lstlisting}
+\pagebreak
