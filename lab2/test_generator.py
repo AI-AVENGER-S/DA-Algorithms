@@ -26,7 +26,7 @@ if __name__ == "__main__":
         with open(f"{test_file_name}.t", 'w') as output_file, \
              open(f"{test_file_name}.a", "w") as answer_file:
 
-            for _ in range(random.randint((10 ** 6) // 4.5, (10 ** 6) // 4.5 + 50_000)):
+            for _ in range(random.randint(10**6 // 1.1, 10**6 // 1.1 + 50_000)):
                 action = random.choices(actions, weights=[50, 20, 30], k=1)[0]
                 
                 if action == "+":

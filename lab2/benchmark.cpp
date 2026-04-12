@@ -6,7 +6,7 @@
 #include <vector>
 #include <iomanip>
 
-#include "AVL/avl.hpp"
+#include "AVL/avl_opt.hpp"
 
 enum class ExpectedType { OK, EXIST, NO_SUCH_WORD, UNKNOWN };
 
@@ -41,6 +41,8 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "Loading data into memory..." << std::flush;
+
+    std::ios::sync_with_stdio(false);
 
     std::vector<Operation> ops;
     std::string action, expected_str;
