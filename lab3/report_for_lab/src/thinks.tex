@@ -1,0 +1,112 @@
+\section{Дневник выполнения работы и анализ недочётов}
+
+\subsection{Дневник выполнения работы}
+\begin{enumerate}
+    \item \textbf{День 1: Базовая проверка памяти.} Первоначальная реализация AVL-дерева была протестирована с помощью утилиты \texttt{leaks}. Благодаря корректной реализации рекурсивного метода \texttt{destroy()} в деструкторе, утечек памяти обнаружено не было (\texttt{0 leaks for 0 total leaked bytes}).
+
+    Посмотрим на результаты неоптимизированных бенчмарков:
+
+\begin{lstlisting}[language=bash]
+artems@MacBook-Air-artem-3 lab2 % leaks --atExit -- ./benchmark_gprof_non_optim tests/01
+benchmark_gprof(40739) MallocStackLogging: could not tag MSL-related memory as no_footprint, so those pages will be included in process footprint - (null)
+benchmark_gprof(40739) MallocStackLogging: recording malloc and VM allocation stacks using lite mode
+Loading data into memory... Done. Loaded 643408 operations.
+
+Running std::map... Done.
+Running avl::AVL... Done.
+
+=== BENCHMARK RESULTS ===
+Total Operations : 643408
+-------------------------
+std::map (RB)    :    790 ms | Mismatches: 0
+avl::AVL         :   1379 ms | Mismatches: 0
+-------------------------
+SUCCESS: Both trees produced 100% correct results.
+Process 40739 is not debuggable. Due to security restrictions, leaks can only show or save contents of readonly memory of restricted processes.
+
+Process:         benchmark_gprof [40739]
+Path:            /Users/USER/Desktop/*/benchmark_gprof
+Load Address:    0x102f58000
+Identifier:      benchmark_gprof
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  leaks [40738]
+
+Date/Time:       2026-04-12 18:20:57.219 +0300
+Launch Time:     2026-04-12 18:20:52.600 +0300
+OS Version:      macOS 14.6.1 (23G93)
+Report Version:  7
+Analysis Tool:   /usr/bin/leaks
+
+Physical footprint:         263.8M
+Physical footprint (peak):  547.4M
+Idle exit:                  untracked
+----
+
+leaks Report Version: 4.0, multi-line stacks
+Process 40739: 186 nodes malloced for 15 KB
+Process 40739: 0 leaks for 0 total leaked bytes.
+
+\end{lstlisting}
+
+    \item \textbf{День 2: Профилирование времени.} Запуск профилировщика (\texttt{Samply}) показал, что программа работает медленнее эталонного \texttt{std::map}. Анализ графа вызовов выявил, что около 29\% процессорного времени тратится на файловый ввод (\texttt{std::istream}) и около 13\% на саму вставку в дерево. Также замечено значительное время, затрачиваемое на копирование ключей (\texttt{std::string}).
+    \item \textbf{День 3: Оптимизация (Избавление от рекурсии).} Было принято решение отказаться от рекурсивного метода \texttt{insert}, так как каждый рекурсивный вызов создает новый фрейм стека. Написана итеративная версия вставки с использованием локального массива \texttt{Node* path[128]} для хранения пути. Ключи и значения начали передаваться через \texttt{std::move}.
+    \item \textbf{День 4: Финальные замеры.} Проведено сравнительное тестирование неоптимизированной и оптимизированной версий программы под контролем \texttt{leaks}. 
+\begin{lstlisting}[language=bash]
+artems@MacBook-Air-artem-3 lab2 % g++ -std=c++17 -pg -O2 -g -Wall -Wextra \   
+    benchmark.cpp -o benchmark_gprof
+artems@MacBook-Air-artem-3 lab2 % leaks --atExit -- ./benchmark_gprof_optim tests/01
+benchmark_gprof(41393) MallocStackLogging: could not tag MSL-related memory as no_footprint, so those pages will be included in process footprint - (null)
+benchmark_gprof(41393) MallocStackLogging: recording malloc and VM allocation stacks using lite mode
+Loading data into memory... Done. Loaded 643408 operations.
+
+Running std::map... Done.
+Running avl::AVL... Done.
+
+=== BENCHMARK RESULTS ===
+Total Operations : 643408
+-------------------------
+std::map (RB)    :    820 ms | Mismatches: 0
+avl::AVL         :    782 ms | Mismatches: 0
+-------------------------
+SUCCESS: Both trees produced 100% correct results.
+Process 41393 is not debuggable. Due to security restrictions, leaks can only show or save contents of readonly memory of restricted processes.
+
+Process:         benchmark_gprof [41393]
+Path:            /Users/USER/Desktop/*/benchmark_gprof
+Load Address:    0x104df0000
+Identifier:      benchmark_gprof
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  leaks [41392]
+
+Date/Time:       2026-04-12 18:24:04.060 +0300
+Launch Time:     2026-04-12 18:24:00.439 +0300
+OS Version:      macOS 14.6.1 (23G93)
+Report Version:  7
+Analysis Tool:   /usr/bin/leaks
+
+Physical footprint:         9.8M
+Physical footprint (peak):  296.0M
+Idle exit:                  untracked
+----
+
+leaks Report Version: 4.0, multi-line stacks
+Process 41393: 186 nodes malloced for 15 KB
+Process 41393: 0 leaks for 0 total leaked bytes.
+\end{lstlisting}
+
+\end{enumerate}
+
+\subsection{Выводы о найденных недочётах}
+В ходе исследования были выявлены следующие архитектурные недочёты первой версии:
+\begin{itemize}
+    \item \textbf{Передача параметров по значению в рекурсии:} При передаче строк по значению (\texttt{std::string}) на каждом шаге рекурсии происходило выделение памяти под копию строки. Использование \texttt{const Key\&} или \texttt{std::move} критически важно для производительности.
+    \item \textbf{Накладные расходы стека вызовов:} Рекурсивная вставка порождала глубокий стек. Это не только замедляло исполнение из-за сохранения регистров процессора, но и усложняло кэширование.
+\end{itemize}
+
+\subsection{Общие выводы об опыте}
+Лабораторная работа наглядно продемонстрировала важность использования профилировщиков.
+\newpage

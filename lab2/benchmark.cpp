@@ -6,7 +6,7 @@
 #include <vector>
 #include <iomanip>
 
-#include "AVL/avl_opt.hpp"
+#include "AVL/avl.hpp"
 
 enum class ExpectedType { OK, EXIST, NO_SUCH_WORD, UNKNOWN };
 

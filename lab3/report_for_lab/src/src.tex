@@ -1,0 +1,137 @@
+\section{Исходный код ключевых алгоритмов}
+В ходе оптимизации рекурсивные методы \texttt{insert} и \texttt{remove} были заменены на итеративные с использованием статического массива для отслеживания пути от корня к листу. Это позволило избежать накладных расходов на вызовы функций, а также наконец воспользоваться std::move для предотвращений копирований при вставке новых узлов. Ниже представлен код:
+
+\begin{lstlisting}
+bool insert(Key key, Value value) {
+    if (!root_) {
+        root_ = new Node(std::move(key), std::move(value));
+        ++size_;
+        return true;
+    }
+
+    Node* path[128];
+    int path_len = 0;
+    Node* curr = root_;
+
+    while (curr) {
+        path[path_len++] = curr;
+        if (key < curr->key) {
+            if (!curr->left) {
+                curr->left = new Node(std::move(key), std::move(value));
+                path[path_len++] = curr->left;
+                ++size_;
+                break;
+            }
+            curr = curr->left;
+        } else if (key > curr->key) {
+            if (!curr->right) {
+                curr->right = new Node(std::move(key), std::move(value));
+                path[path_len++] = curr->right;
+                ++size_;
+                break;
+            }
+            curr = curr->right;
+        } else {
+            return false;
+        }
+    }
+
+    for (int i = path_len - 2; i >= 0; --i) {
+        Node* node = path[i];
+        Node* new_subtree = balance(node);
+
+        if (new_subtree != node) {
+            if (i == 0) {
+                root_ = new_subtree;
+            } else {
+                Node* parent = path[i - 1];
+                if (parent->left == node) parent->left = new_subtree;
+                else parent->right = new_subtree;
+            }
+        }
+    }
+    return true;
+
+
+    bool remove(Key key) {
+        if (!root_) return false;
+
+        Node* path[128];
+        int path_len = 0;
+
+        Node* curr = root_;
+
+        bool found = false;
+        Node* target = nullptr;
+        while (curr) {
+            path[path_len++] = curr;
+
+            if (key < curr->key) {
+                curr = curr->left;
+            } else if (key > curr->key) {
+                curr = curr->right;
+            } else {
+                found = true;
+                target = curr;
+                break;
+            }
+        }
+        if (!found) return false;
+
+        Node* parent = (path_len >= 2) ? path[path_len - 2] : nullptr;
+
+        if (!target->left || !target->right) {
+            Node* child = target->left ? target->left : target->right;
+
+            if (parent == nullptr) {
+                root_ = child;
+            } else if (parent->left == target) {
+                parent->left = child;
+            } else {
+                parent->right = child;
+            }
+            delete target;
+        } else {
+            Node* succ_parent = target;
+            Node* succ = target->right;
+            while (succ->left) {
+                succ_parent = succ;
+                succ = succ->left;
+            }
+
+            target->key = std::move(succ->key);
+            target->value = std::move(succ->value);
+
+            if (succ_parent->left == succ) {
+                succ_parent->left = succ->right;
+            } else {
+                succ_parent->right = succ->right;
+            }
+            delete succ;
+        }
+
+        --size_;
+
+        for (int i = path_len - 2; i >= 0; --i) {
+            Node* node = path[i];
+            Node* new_subtree = balance(node);
+
+            if (new_subtree != node) {
+                if (i == 0) {
+                    root_ = new_subtree;
+                } else {
+                    Node* p = path[i - 1];
+                    if (p->left == node) {
+                        p->left = new_subtree;
+                    } else {
+                        p->right = new_subtree;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+}
+\end{lstlisting}
+\newpage
