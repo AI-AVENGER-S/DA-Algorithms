@@ -1,0 +1,80 @@
+#include "utils.hpp"
+#include <iostream>
+#include <algorithm>
+
+namespace utils {
+
+void to_lower_inplace(std::string& s) {
+    for (char& c : s) {
+        c = (char)std::tolower((unsigned char)c);
+    }
+}
+
+std::vector<int> build_z(const std::vector<std::string>& p) {
+    int m = (int)p.size();
+    std::vector<int> z(m, 0);
+    for (int i = 1, l = 0, r = 0; i < m; ++i) {
+        if (i <= r) {
+            z[i] = std::min(r - i + 1, z[i - l]);
+        }
+        while (i + z[i] < m && p[z[i]] == p[i + z[i]]) {
+            z[i]++;
+        }
+        if (i + z[i] - 1 > r) {
+            l = i;
+            r = i + z[i] - 1;
+        }
+    }
+    return z;
+}
+
+std::vector<int> build_strong_pi(const std::vector<int>& z) {
+    int m = (int)z.size();
+    std::vector<int> sp(m, 0);
+    
+    for (int i = 1; i < m; ++i) {
+        if (z[i] > 0) {
+            int end_idx = i + z[i] - 1;
+            sp[end_idx] = std::max(sp[end_idx], z[i]);
+        }
+    }
+    return sp;
+}
+
+void kmp_search_itmo(const std::vector<std::string>& p, const std::vector<std::string>& t, const std::vector<Position>& pos) {
+    if (p.empty() || t.empty() || p.size() > t.size()) return;
+
+    std::vector<int> z = build_z(p);
+    std::vector<int> sp = build_strong_pi(z);
+
+    int n = (int)t.size();
+    int m = (int)p.size();
+    
+    int start = 0;
+    int j = 0;
+
+    while (start <= n - m) {
+        while (j < m && p[j] == t[start + j]) {
+            j++;
+        }
+        
+        if (j == m) {
+            std::cout << pos[start].line << ", " << pos[start].word_idx << "\n";
+            int shift = m - sp[m - 1];
+            start += shift;
+            j = sp[m - 1];
+
+        } 
+        else {
+            if (j == 0) start++;
+
+            else {
+                int shift = j - sp[j - 1];
+                start += shift;
+                j = sp[j - 1];
+            }
+        }
+    }
+}
+
+}
