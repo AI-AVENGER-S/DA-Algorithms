@@ -2,7 +2,7 @@ import random
 import string
 
 def generate_word(length=8):
-    return ''.join(random.choices(string.ascii_letters, k=length))
+    return ''.join(random.choices("ABC", k=length))
 
 def generate_test(filename, word_count=1_000_000, pattern_len=3):
     words = [generate_word(random.randint(3, 16)) for _ in range(1000)]
@@ -25,15 +25,15 @@ def generate_test(filename, word_count=1_000_000, pattern_len=3):
 
 def generate_killer_test():
     with open("test_input.txt", "w") as f:
-        pattern = ["a"] * 100 + ["b"]
+        pattern = ["aaaaaa"] * 4 + ["aaaaab"]
         f.write(" ".join(pattern) + "\n")
-        
-        text = ["a"] * 1000000 + ["b"]
+
+        text = ["aaaaaa"] * 1000000 + ["aaaaab"]
         f.write(" ".join(text) + "\n")
 
-# if __name__ == "__main__":
-#     generate_killer_test()
-
 if __name__ == "__main__":
-    generate_test("test_input.txt", word_count=500_000, pattern_len=4)
-    print("Test file 'test_input.txt' generated.")
+    generate_killer_test()
+
+# if __name__ == "__main__":
+#     generate_test("test_input.txt", word_count=500_000, pattern_len=1)
+#     print("Test file 'test_input.txt' generated.")

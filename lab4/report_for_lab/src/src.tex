@@ -1,0 +1,141 @@
+\section{Описание}
+
+Требуется реализовать алгоритм поиска подстроки в последовательности элементов (слов в тексте) используя алгоритм Кнута-Морриса-Пратта (KMP). Особенностью этой реализации является построение функции отказов через промежуточное вычисление Z-array (массива префиксов из Z-algorithm), а затем конвертация его в так называемый \enquote{strong prefix function} для оптимизированного поиска.
+
+\subsection{Основная идея}
+
+Алгоритм KMP решает задачу поиска паттерна длины $m$ в тексте длины $n$ за время $O(n + m)$ без предварительной обработки всего текста в памяти. Вместо наивного перебора со сдвигом на каждый символ, KMP использует информацию о структуре паттерна, чтобы пропускать заведомо неудачные сдвиги.
+
+\subsection{Z-algorithm и Strong Prefix Function}
+
+Z-array массива $p$ представляет собой массив длин наибольших префиксов, совпадающих с подстроками, начинающимися на каждой позиции:
+\[
+z[i] = \max\{k : p[0..k-1] = p[i..i+k-1]\}
+\]
+
+Strong prefix function преобразует Z-array так, что для каждой позиции $j$ в паттерне хранится максимальная длина суффикса, который совпадает с префиксом и заканчивается именно в позиции $j$.
+
+Построение strong prefix function из Z-array:
+\[
+sp[i + z[i] - 1] = \max(sp[i + z[i] - 1], z[i]) \quad \text{для всех } i
+\]
+
+\pagebreak
+
+\section{Исходный код}
+
+Реализация разделена на модули: \texttt{utils.hpp/utils.cpp} содержат утилиты для построения структур данных и поиска, а \texttt{lab4.cpp} содержит главную программу.
+
+\subsection{Построение Z-array}
+
+Алгоритм построения Z-array работает за линейное время $O(m)$ и использует технику скользящего окна:
+
+\begin{lstlisting}[language=C++]
+std::vector<int> build_z(const std::vector<std::string>& p) {
+    int m = (int)p.size();
+    std::vector<int> z(m, 0);
+    for (int i = 1, l = 0, r = 0; i < m; ++i) {
+        if (i <= r) {
+            z[i] = std::min(r - i + 1, z[i - l]);
+        }
+        while (i + z[i] < m && p[z[i]] == p[i + z[i]]) {
+            z[i]++;
+        }
+        if (i + z[i] - 1 > r) {
+            l = i;
+            r = i + z[i] - 1;
+        }
+    }
+    return z;
+}
+\end{lstlisting}
+
+Переменные $l$ и $r$ отслеживают границы наиболее правого отрезка, для которого известна информация о совпадении с префиксом. Это позволяет избежать избыточного сравнения и достичь линейности.
+
+\subsection{Построение Strong Prefix Function}
+
+\begin{lstlisting}[language=C++]
+std::vector<int> build_strong_pi(const std::vector<int>& z) {
+    int m = (int)z.size();
+    std::vector<int> sp(m, 0);
+    
+    for (int i = m - 1; i >= 0; --i) {
+        if (z[i] > 0) {
+            int end_idx = i + z[i] - 1;
+            sp[end_idx] = std::max(sp[end_idx], z[i]);
+        }
+    }
+    return sp;
+}
+\end{lstlisting}
+
+\subsection{Поиск в потоке}
+
+\begin{lstlisting}[language=C++]
+void kmp_stream_search(std::istream& in, 
+                       const std::vector<std::string>& pattern, 
+                       const std::vector<int>& sp) {
+    if (pattern.empty()) return;
+
+    const int m = (int)pattern.size();
+    std::vector<Position> buffer(m);
+    
+    std::string line;
+    size_t line_num = 1;
+    size_t total_words = 0;
+    int j = 0;
+    
+    std::string current_word;
+    current_word.reserve(100); 
+
+    while (std::getline(in, line)) {
+        size_t word_idx = 1;
+        
+        for (size_t i = 0; i <= line.length(); ++i) {
+            if (i == line.length() || 
+                std::isspace((unsigned char)line[i])) {
+                if (!current_word.empty()) {
+                    to_lower_inplace(current_word);
+
+                    buffer[total_words % m] = {line_num, word_idx};
+                    ++total_words;
+
+                    while (j > 0 && pattern[j] != current_word) {
+                        j = sp[j - 1];
+                    }
+                    if (pattern[j] == current_word) {
+                        ++j;
+                    }
+
+                    if (j == m) {
+                        const auto& start_pos = 
+                            buffer[(total_words - m) % m];
+                        std::cout << start_pos.line << ", " 
+                                  << start_pos.word_idx << "\n";
+                        j = sp[m - 1];
+                    }
+
+                    current_word.clear();
+                    word_idx++;
+                }
+            } else {
+                current_word += line[i];
+            }
+        }
+        line_num++;
+    }
+}
+\end{lstlisting}
+
+Ключевая оптимизация: используется циклический буфер размером $m$, чтобы хранить только последние $m$ позиций слов. Это обеспечивает $O(m)$ использования памяти вместо хранения всех позиций.
+
+Основной цикл KMP выполняет следующие операции:
+\begin{enumerate}
+    \item Читает строку из потока и парсит её на слова
+    \item Для каждого слова выполняет стандартный KMP-шаг: backtracking при несовпадении через функцию отказов
+    \item При полном совпадении паттерна выводит позицию и переходит к следующему возможному совпадению
+\end{enumerate}
+
+Сложность алгоритма: предобработка паттерна за 2m, следовательно ассимптотически $O(n + m)$, где $n$ — общее число букв в словах текста, $m$ — число букв в словах паттерна.
+
+\pagebreak
