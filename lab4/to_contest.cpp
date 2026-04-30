@@ -9,8 +9,8 @@
 namespace utils {
 
 struct Position {
-    uint32_t line;
-    uint32_t word_idx;
+    size_t line;
+    size_t word_idx;
 };
 
 void to_lower_inplace(std::string& s) {
@@ -20,11 +20,11 @@ void to_lower_inplace(std::string& s) {
 }
 
 std::vector<int> build_z(const std::vector<std::string>& p) {
-    int m = (int)p.size();
+    size_t m = p.size();
     std::vector<int> z(m, 0);
-    for (int i = 1, l = 0, r = 0; i < m; ++i) {
+    for (size_t i = 1, l = 0, r = 0; i < m; ++i) {
         if (i <= r) {
-            z[i] = std::min(r - i + 1, z[i - l]);
+            z[i] = std::min((int)(r - i + 1), z[i - l]);
         }
         while (i + z[i] < m && p[z[i]] == p[i + z[i]]) {
             z[i]++;
@@ -38,10 +38,10 @@ std::vector<int> build_z(const std::vector<std::string>& p) {
 }
 
 std::vector<int> build_strong_pi(const std::vector<int>& z) {
-    int m = (int)z.size();
+    size_t m = z.size();
     std::vector<int> sp(m, 0);
     
-    for (int i = 1; i < m; ++i) {
+    for (size_t i = 1; i < m; ++i) {
         if (z[i] > 0) {
             int end_idx = i + z[i] - 1;
             sp[end_idx] = std::max(sp[end_idx], z[i]);
@@ -56,10 +56,10 @@ void kmp_search_itmo(const std::vector<std::string>& p, const std::vector<std::s
     std::vector<int> z = build_z(p);
     std::vector<int> sp = build_strong_pi(z);
 
-    int n = (int)t.size();
-    int m = (int)p.size();
+    size_t n = t.size();
+    size_t m = p.size();
     
-    int start = 0;
+    size_t start = 0;
     int j = 0;
 
     while (start <= n - m) {

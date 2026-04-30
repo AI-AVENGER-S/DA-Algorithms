@@ -1,16 +1,19 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <cstdint>
 
 namespace utils {
 
 struct Position {
-    uint32_t line;
-    uint32_t word_idx;
+    size_t line;
+    size_t word_idx;
 };
 
 void to_lower_inplace(std::string& s);
+
+std::vector<int> build_z(const std::vector<std::string>& p);
+
+std::vector<int> build_strong_pi(const std::vector<int>& z);
 
 void kmp_search_itmo(
     const std::vector<std::string>& p, 
