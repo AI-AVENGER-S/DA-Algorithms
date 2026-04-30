@@ -124,15 +124,15 @@ int main() {
     vector<utils::Position> buffer(m);
     
     string line;
-    uint32_t line_num = 1;
-    uint64_t total_words = 0;
+    size_t line_num = 1;
+    size_t total_words = 0;
     int j = 0;
     
     string current_word;
     current_word.reserve(100); 
 
     while (getline(cin, line)) {
-        uint32_t word_idx = 1;
+        size_t word_idx = 1;
         
         for (size_t i = 0; i <= line.length(); ++i) {
             if (i == line.length() || isspace((unsigned char)line[i])) {
