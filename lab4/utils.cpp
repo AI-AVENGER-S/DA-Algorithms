@@ -10,6 +10,7 @@ void to_lower_inplace(std::string& s) {
     }
 }
 
+
 std::vector<int> build_z(const std::vector<std::string>& p) {
     size_t m = p.size();
     std::vector<int> z(m, 0);
@@ -29,10 +30,10 @@ std::vector<int> build_z(const std::vector<std::string>& p) {
 }
 
 std::vector<int> build_strong_pi(const std::vector<int>& z) {
-    size_t m = z.size();
+    int m = (int)z.size();
     std::vector<int> sp(m, 0);
     
-    for (size_t i = 1; i < m; ++i) {
+    for (int i = m - 1; i >= 0; --i) {
         if (z[i] > 0) {
             int end_idx = i + z[i] - 1;
             sp[end_idx] = std::max(sp[end_idx], z[i]);
@@ -41,39 +42,52 @@ std::vector<int> build_strong_pi(const std::vector<int>& z) {
     return sp;
 }
 
-void kmp_search_itmo(const std::vector<std::string>& p, const std::vector<std::string>& t, const std::vector<Position>& pos) {
-    if (p.empty() || t.empty() || p.size() > t.size()) return;
+void kmp_stream_search(std::istream& in, const std::vector<std::string>& pattern, const std::vector<int>& sp) {
+    if (pattern.empty()) return;
 
-    std::vector<int> z = build_z(p);
-    std::vector<int> sp = build_strong_pi(z);
-
-    size_t n = t.size();
-    size_t m = p.size();
+    const int m = (int)pattern.size();
+    std::vector<Position> buffer(m);
     
-    size_t start = 0;
+    std::string line;
+    size_t line_num = 1;
+    size_t total_words = 0;
     int j = 0;
+    
+    std::string current_word;
+    current_word.reserve(100); 
 
-    while (start <= n - m) {
-        while (j < m && p[j] == t[start + j]) {
-            j++;
-        }
+    while (std::getline(in, line)) {
+        size_t word_idx = 1;
         
-        if (j == m) {
-            std::cout << pos[start].line << ", " << pos[start].word_idx << "\n";
-            int shift = m - sp[m - 1];
-            start += shift;
-            j = sp[m - 1];
+        for (size_t i = 0; i <= line.length(); ++i) {
+            if (i == line.length() || std::isspace((unsigned char)line[i])) {
+                if (!current_word.empty()) {
+                    to_lower_inplace(current_word);
 
-        } 
-        else {
-            if (j == 0) start++;
+                    buffer[total_words % m] = {line_num, word_idx};
+                    ++total_words;
 
-            else {
-                int shift = j - sp[j - 1];
-                start += shift;
-                j = sp[j - 1];
+                    while (j > 0 && pattern[j] != current_word) {
+                        j = sp[j - 1];
+                    }
+                    if (pattern[j] == current_word) {
+                        ++j;
+                    }
+
+                    if (j == m) {
+                        const auto& start_pos = buffer[(total_words - m) % m];
+                        std::cout << start_pos.line << ", " << start_pos.word_idx << "\n";
+                        j = sp[m - 1];
+                    }
+
+                    current_word.clear();
+                    word_idx++;
+                }
+            } else {
+                current_word += line[i];
             }
         }
+        line_num++;
     }
 }
 

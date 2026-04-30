@@ -1,12 +1,30 @@
-CC = g++
-CC_FLAGS = -std=c++17 -pedantic -Wall -Wextra
-OBJS = utils.o
+CXX = g++
+CXXFLAGS = -O3 -Wall -Wextra -std=c++20
 
-all: $(OBJS)
-	$(CC) $(CC_FLAGS) $(OBJS) lab4.cpp -o lab4
+TARGET = benchmark
+SRC = benchmark.cpp
+GEN_SCRIPT = test_generator.py
+TEST_DATA = test_input.txt
 
-utils.o: utils.cpp
-	$(CC) $(CC_FLAGS) -c utils.cpp
+all: $(TARGET)
+
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
+
+gen:
+	@echo "Generating test data..."
+	python3 $(GEN_SCRIPT)
+
+run: $(TARGET)
+	@if [ ! -f $(TEST_DATA) ]; then \
+		$(MAKE) gen; \
+	fi
+	@echo "Running benchmark..."
+	./$(TARGET) < $(TEST_DATA)
+
+bench: clean all gen run
 
 clean:
-	rm -f $(OBJS) lab4
+	rm -f $(TARGET) $(TEST_DATA)
+	rm -rf __pycache__
+
