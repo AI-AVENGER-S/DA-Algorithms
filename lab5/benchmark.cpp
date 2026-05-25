@@ -3,8 +3,11 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <chrono>
+#include <random>
 
 using namespace std;
+
 
 struct Node {
     int l, r;
@@ -148,14 +151,66 @@ string solve(const string& s) {
     return st.optimal_lecs_split(s.size());
 }
 
+
+string solve_naive(const string& s) {
+    if (s.empty()) return "";
+    
+    vector<string> rotations;
+    rotations.reserve(s.length());
+    
+    for (size_t i = 0; i < s.length(); ++i) {
+        rotations.push_back(s.substr(i) + s.substr(0, i));
+    }
+    
+    return *min_element(rotations.begin(), rotations.end());
+}
+
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
     
     string s;
-    cin >> s;
+    if (!getline(cin, s)) {
+        cerr << "No input\n";
+        return 1;
+    }
     
-    cout << solve(s) << "\n";
+    while (!s.empty() && isspace((unsigned char)s.back())) {
+        s.pop_back();
+    }
+    
+    if (s.empty()) {
+        cout << "String length: 0\n";
+        return 0;
+    }
+    
+    cout << "String length: " << s.length() << "\n";
+    cout << "-----------------------------------\n";
+    
+    auto start1 = chrono::high_resolution_clock::now();
+    string result1 = solve(s);
+    auto end1 = chrono::high_resolution_clock::now();
+    auto duration1 = chrono::duration_cast<chrono::microseconds>(end1 - start1);
+    
+    auto start2 = chrono::high_resolution_clock::now();
+    string result2 = solve_naive(s);
+    auto end2 = chrono::high_resolution_clock::now();
+    auto duration2 = chrono::duration_cast<chrono::microseconds>(end2 - start2);
+    
+    cout << "Suffix Tree: " << duration1.count() << " us\n";
+    cout << "Naive std::min_element: " << duration2.count() << " us\n";
+    cout << "-----------------------------------\n";
+    
+    double speedup = (double)duration2.count() / duration1.count();
+    cout << "Speedup: " << speedup << "x\n";
+    
+    if (result1 != result2) {
+        cerr << "ERROR: Results do not match!\n";
+        cerr << "Suffix Tree: " << result1 << "\n";
+        cerr << "Naive: " << result2 << "\n";
+        return 1;
+    }
     
     return 0;
 }

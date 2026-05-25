@@ -1,0 +1,62 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{geometry}
+\geometry{a4paper, margin=2cm}
+
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{colortbl}
+\usepackage{longtable}
+\usepackage{csquotes}
+\usepackage{amsmath}
+
+\definecolor{lightgray}{rgb}{0.95, 0.95, 0.95}
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+
+\lstset{
+    language=C++,
+    backgroundcolor=\color{lightgray},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    tabsize=4,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true
+}
+
+\newcommand{\CWHeader}[1]{
+    \begin{center}
+        \bfseries\Large #1
+    \end{center}
+    \vspace{1.5em}
+}
+
+\newcommand{\CWProblem}[1]{
+    \noindent
+    \textbf{Условие задачи:}\par
+    \vspace{0.5em}
+    #1
+    \vspace{1.5em}
+}
+
+\begin{document}
+
+\input{src/titlepage}
+
+\input{src/problem}
+
+\input{src/src}
+
+\input{src/benchmark}
+
+\input{src/literature}
+
+\input{src/thinks}
+
+\end{document}
