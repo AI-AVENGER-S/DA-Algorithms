@@ -42,10 +42,7 @@ int main() {
 
         if (x + y <= z) continue;
 
-        ld p = ((ld)x + y + z)
-             * (-(ld)x + y + z)
-             * ((ld)x - y + z)
-             * ((ld)x + y - z);
+        ld p = ((ld)x + y + z) * (-(ld)x + y + z) * ((ld)x - y + z)  * ((ld)x + y - z);
 
         if (p > best) {
             best = p;
